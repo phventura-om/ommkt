@@ -3,7 +3,6 @@ import pandas as pd
 
 from scraper_core import run_scraper
 
-
 # ==========================================================
 # ⚙️ CONFIG DA PÁGINA
 # ==========================================================
@@ -14,7 +13,7 @@ st.set_page_config(
 )
 
 # ==========================================================
-# 🎨 CSS – PEGADA FUTURISTA / TECH
+# 🎨 CSS – FUTURISTA, SEM WRAPPERS PROBLEMÁTICOS
 # ==========================================================
 st.markdown(
     """
@@ -24,12 +23,14 @@ st.markdown(
     color: #e5e7eb;
 }
 
+/* container principal */
 .block-container {
     max-width: 1100px;
     padding-top: 2.3rem;
     padding-bottom: 3rem;
 }
 
+/* HERO: logo OM MKT com glow */
 .hero-logo {
     text-align: center;
     font-size: 3.2rem;
@@ -57,6 +58,7 @@ st.markdown(
     margin-bottom: 0.8rem;
 }
 
+/* chips de features */
 .hero-chips {
     display: flex;
     justify-content: center;
@@ -72,10 +74,11 @@ st.markdown(
     border: 1px solid rgba(148, 163, 184, 0.4);
 }
 
-.form-card {
-    background: linear-gradient(135deg, rgba(15,23,42,0.85), rgba(15,23,42,0.95));
+/* "card" do formulário: estilizamos o bloco central diretamente */
+.form-section {
+    background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(15,23,42,0.96));
     border-radius: 20px;
-    padding: 1.6rem 1.8rem 1.4rem 1.8rem;
+    padding: 1.6rem 1.8rem 1.6rem 1.8rem;
     border: 1px solid rgba(148,163,184,0.35);
     box-shadow:
         0 25px 60px rgba(15, 23, 42, 0.9),
@@ -94,6 +97,7 @@ st.markdown(
     margin-bottom: 1.1rem;
 }
 
+/* inputs glassy */
 .stTextInput > div > div > input,
 .stTextArea textarea,
 .stNumberInput input {
@@ -119,6 +123,7 @@ st.markdown(
     font-size: 0.85rem;
 }
 
+/* botão principal com glow */
 .stButton > button {
     background: linear-gradient(120deg, #22c55e, #38bdf8, #f97316);
     background-size: 200% 200%;
@@ -147,24 +152,29 @@ st.markdown(
     transform: translateY(0px);
 }
 
+/* barra de progresso neon */
 .stProgress > div > div {
     background: linear-gradient(90deg, #22c55e, #38bdf8, #f97316) !important;
 }
 
+/* texto de status */
 .status-text {
     color: #f97316;
     font-weight: 500;
     font-size: 0.9rem;
 }
 
-.result-card {
+/* "card" de resultado */
+.result-section {
     background: rgba(15,23,42,0.9);
     border-radius: 18px;
     padding: 1.2rem 1.4rem;
     border: 1px solid rgba(148,163,184,0.35);
     box-shadow: 0 20px 50px rgba(15,23,42,0.85);
+    margin-top: 1rem;
 }
 
+/* botão de download */
 .stDownloadButton > button {
     border-radius: 999px;
     background: linear-gradient(120deg, #0ea5e9, #22c55e) !important;
@@ -172,11 +182,6 @@ st.markdown(
     border: none;
 }
 
-.center-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
 </style>
 """,
     unsafe_allow_html=True,
@@ -194,10 +199,8 @@ def parse_multiline(text: str):
 
 
 # ==========================================================
-# 🧱 LAYOUT – HERO + FORM FUTURISTA
+# 🧱 HERO – LOGO + SUBTÍTULO + CHIPS
 # ==========================================================
-st.markdown('<div class="center-wrapper">', unsafe_allow_html=True)
-
 st.markdown(
     """
 <div class="hero-logo">
@@ -215,15 +218,14 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.markdown("</div>", unsafe_allow_html=True)
+# ==========================================================
+# 🧱 SEÇÃO DO FORMULÁRIO (CENTRAL)
+# ==========================================================
+col_esq, col_centro, col_dir = st.columns([1, 4, 1])
 
-col_esq, col_card, col_dir = st.columns([1, 4, 1])
-
-with col_card:
-    st.markdown('<div class="form-card">', unsafe_allow_html=True)
-
-    st.markdown('<div class="form-title">Configuração do ICP</div>', unsafe_allow_html=True)
+with col_centro:
     st.markdown(
+        '<div class="form-section"><div class="form-title">Configuração do ICP</div>'
         '<div class="form-caption">Defina o perfil ideal, clique em iniciar e deixe o motor da OM MKT trabalhar por você.</div>',
         unsafe_allow_html=True,
     )
@@ -281,7 +283,7 @@ with col_card:
 
     start = st.button("🚀 Iniciar prospecção", use_container_width=True)
 
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)  # fecha form-section (apenas visual)
 
 
 # ==========================================================
@@ -300,14 +302,13 @@ if start:
         st.error("Adicione ao menos **uma cidade**.")
         st.stop()
 
-    with col_card:
-        st.markdown("<br>", unsafe_allow_html=True)
+    with col_centro:
         st.markdown("#### 🔄 Progresso da prospecção")
         progress_bar = st.progress(0)
         status_placeholder = st.empty()
 
     def progress_callback(current, total, pct):
-        with col_card:
+        with col_centro:
             progress_bar.progress(pct)
             status_placeholder.markdown(
                 f"<p class='status-text'>Processando empresas: {current}/{total} ({pct}%)</p>",
@@ -325,10 +326,11 @@ if start:
 
     leads = run_scraper(config, progress_callback=progress_callback)
 
-    with col_card:
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown('<div class="result-card">', unsafe_allow_html=True)
-        st.markdown("### ✅ Resultado da prospecção")
+    with col_centro:
+        st.markdown(
+            '<div class="result-section"><h3>✅ Resultado da prospecção</h3>',
+            unsafe_allow_html=True,
+        )
         st.write(f"Foram encontrados **{len(leads)}** leads quentes com o filtro atual.")
 
         if leads:
@@ -343,7 +345,6 @@ if start:
             st.markdown("#### 📋 Leads encontrados (visão resumida)")
             st.dataframe(df[cols_existentes], use_container_width=True)
 
-            # 🔽 Download do arquivo gerado (CSV)
             csv_bytes = df.to_csv(index=False).encode("utf-8")
             st.download_button(
                 "⬇️ Baixar arquivo de leads (CSV)",
@@ -351,7 +352,6 @@ if start:
                 file_name="leads_quentes.csv",
                 mime="text/csv",
             )
-
         else:
             st.info("Nenhum lead aprovado com o score mínimo atual.")
 
